@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# C64 program file
+*.prg
+
 # C extensions
 *.so
 
