@@ -3,7 +3,7 @@
 
   * = $0801
   
-  !basic
+    !byte $0b,$08,$0a,$00,$9e,$32,$30,$36,$31,$00,$00,$00
   
   jmp Start
   
@@ -20,8 +20,8 @@ InitWIC64:
     +jne legacy_firmware_detected
 
     +wic64_dont_disable_irqs
-    +wic64_execute set_transfer_timeout, $05
-    +wic64_execute set_remote_timeout, $05
+    +wic64_execute set_transfer_timeout, buffer, $05
+    +wic64_execute set_remote_timeout, buffer, $05
     clc
     rts
     
@@ -39,7 +39,7 @@ Connect:
 Close:
     
     +wic64_reset_store_instruction    
-    +wic64_execute close_request, $05
+    +wic64_execute close_request, buffer, $05
     rts
 
 error:
@@ -72,7 +72,7 @@ legacy_firmware_detected:
     
 Write:
     
-    +wic64_execute write_request, $05
+    +wic64_execute write_request, buffer, $05
     +jcs write_timeout
     +jne error
     lda #ACTION_REPEAT_NUMBER
@@ -91,7 +91,7 @@ Read:
     sta bufptr
     sta buffer
     
-    +wic64_execute read_request, $05
+    +wic64_execute read_request, buffer, $05
     +jcs read_timeout
     +jne error
     lda #ACTION_REPEAT_NUMBER
@@ -492,7 +492,7 @@ response:
 
   * = $2000
   
-;Spties data
+;Sprites data
 
 !byte $30,$00,$00,$78,$00,$00,$FC,$00,$00,$78,$00,$00,$30,$00,$00,$00
 !byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00

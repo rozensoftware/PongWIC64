@@ -52,7 +52,7 @@ class TCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         try:
             # Set a timeout for reading data from the client
-            self.request.settimeout(50.0)  # Timeout set to 5 seconds
+            self.request.settimeout(5.0)  # Timeout set to 5 seconds
 
             # Log the connection moment and client's IP address
             print(f"New connection from {self.client_address[0]}:{self.client_address[1]}")
@@ -61,19 +61,16 @@ class TCPRequestHandler(socketserver.BaseRequestHandler):
                 try:
                     timeout = 1.0  # Timeout for select
                     ready_to_read, _, _ = select.select([self.request], [], [], timeout)
-                    if self.request in ready_to_read:
-                        self.data = self.request.recv(MAX_DATA_RECEIVE)
-                        if not self.data:
-                            print(f"Client {self.client_address} disconnected.")
-                            self.remove_client()
-                            break
+                    if self.request not in ready_to_read:
+                        continue
+
+                    data = self.request.recv(MAX_DATA_RECEIVE)
+                    if not data:
+                        print(f"Client {self.client_address} disconnected.")
+                        self.remove_client()
+                        break
                     
-                    # Get number of received bytes
-                    num_bytes = len(self.data)
-                    if num_bytes == 0:
-                        continue  # Skip processing if no data is received
-                    
-                    response = self.process_data(self.data)
+                    response = self.process_data(data)
                     if response is not None:
                         if self.request and self.request.fileno() != -1:
                             self.request.sendall(response)
